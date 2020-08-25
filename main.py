@@ -16,14 +16,14 @@ percnet_size = 100      # 浸透サブネットの各層の素子数
 percfeature_size = 100  # 浸透特徴の個数
 intnet_size = 100       # 統合サブネットの各層の素子数
 output_size = 10        # 出力データのサイズ
-epochs_prior = 100      # 事前学習のエポック数
-epochs_perc = 100      # 浸透学習のエポック数
-epochs_adj = 100        # 微調整のエポック数
-batch_size = 256       # バッチサイズ
+epochs_prior = 300      # 事前学習のエポック数
+epochs_perc = 1000      # 浸透学習のエポック数
+epochs_adj = 200        # 微調整のエポック数
+batch_size = 1024       # バッチサイズ
 validation_split = 1 / 7  # 評価に用いるデータの割合
 test_split = 1 / 7        # テストに用いるデータの割合
 verbose = 2             # 学習進捗の表示モード
-decay = 0.05            # 減衰率
+decay = 0.01            # 減衰率
 optimizer = Adam(lr=0.0001)      # 最適化アルゴリズム
 # callbacks = [make_tensorboard(set_dir_name='log')]  # コールバック
 
@@ -49,7 +49,7 @@ x_train_main, x_train_aux, y_train, x_val, y_val, x_test, y_test = datasets.get_
 
 
 # 入力データの表示
-x_train = np.concatenate([x_train_main, x_train_aux], axis=1)
+x_train = np.concatenate([x_train_main, 0*x_train_aux], axis=1)
 n = 10
 plt.figure()
 for i in range(n):

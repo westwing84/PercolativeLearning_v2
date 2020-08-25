@@ -65,12 +65,12 @@ class MNISTDataset():
         id_val = int(validation_split * x.shape[0])
         x_train = x[:-(id_val + id_test)]
         y_train = y[:-(id_val + id_test)]
-        x_train_main, x_train_aux = np.split(x_train, [split_col], axis=1)
+        x_train_main, x_train_aux = np.split(x_train, [-split_col], axis=1)
         x_val = x[-(id_val + id_test):-id_test]
-        x_val[:, split_col:] = 0
+        x_val[:, -split_col:] = 0
         y_val = y[-(id_val + id_test):-id_test]
         x_test = x[-id_test:]
-        x_test[:, split_col:] = 0
+        x_test[:, -split_col:] = 0
         y_test = y[-id_test:]
         return x_train_main, x_train_aux, y_train, x_val, y_val, x_test, y_test
 
