@@ -9,7 +9,6 @@ from tensorflow.keras.datasets import mnist, cifar100
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.callbacks import TensorBoard, Callback
-import matplotlib.pyplot as plt
 
 
 # 浸透サブネットおよび全体のネットワークの構成
@@ -85,7 +84,7 @@ class CIFAR100Dataset():
 
     # CIFAR100データの取得
     def get_data(self):
-        (x_train, y_train), (x_test, y_test) = cifar100.load_data()
+        (x_train, y_train), (x_test, y_test) = cifar100.load_data(label_mode='fine')
         # 出力データをone-hotベクトルによる表現にする
         y_train = to_categorical(y_train, self.num_classes)
         y_test = to_categorical(y_test, self.num_classes)
