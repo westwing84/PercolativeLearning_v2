@@ -1,13 +1,11 @@
 # 浸透学習の実装
+# MNISTデータセットを学習させる．各画像を一定の割合で分割して，片方を主データ，もう片方を補助データとする．
 
-from tensorflow.keras.optimizers import Adam, SGD
-from tensorflow.keras.losses import mean_squared_error, categorical_crossentropy
-import numpy as np
 import matplotlib.pyplot as plt
-from TrainNetwork import network, MNISTDataset, Trainer, LossAccHistory
+from Models import *
 
 dt_size = 784           # 1データのサイズ(画像のピクセル数)
-data_split = 0.5        # 全ピクセルのうちの補助データの割合
+data_split = 0.7        # 全ピクセルのうちの補助データの割合
 subdt_size = int(dt_size * data_split)   # 補助データのサイズ
 maindt_size = dt_size - subdt_size  # 主データのサイズ
 layers_percnet = 2      # 浸透サブネットの層数
@@ -16,15 +14,15 @@ percnet_size = 100      # 浸透サブネットの各層の素子数
 percfeature_size = 100  # 浸透特徴の個数
 intnet_size = 100       # 統合サブネットの各層の素子数
 output_size = 10        # 出力データのサイズ
-epochs_prior = 300      # 事前学習のエポック数
-epochs_perc = 1000      # 浸透学習のエポック数
-epochs_adj = 200        # 微調整のエポック数
-batch_size = 1024       # バッチサイズ
+epochs_prior = 100      # 事前学習のエポック数
+epochs_perc = 800       # 浸透学習のエポック数
+epochs_adj = 100        # 微調整のエポック数
+batch_size = 512        # バッチサイズ
 validation_split = 1 / 7  # 評価に用いるデータの割合
 test_split = 1 / 7        # テストに用いるデータの割合
 verbose = 2             # 学習進捗の表示モード
-decay = 0.01            # 減衰率
-optimizer = Adam(lr=0.0001)      # 最適化アルゴリズム
+decay = 0.05            # 減衰率
+optimizer = Adam(lr=0.001)      # 最適化アルゴリズム
 # callbacks = [make_tensorboard(set_dir_name='log')]  # コールバック
 
 
@@ -44,7 +42,6 @@ x_train, y_train, x_test, y_test = datasets.get_data()
 # TrainデータとTestデータを結合して，それをTrain，Validation，Testデータに分ける．
 x = np.concatenate([x_train, x_test], axis=0)
 y = np.concatenate([y_train, y_test], axis=0)
-# x, y = shuffle_datasets(x, y)
 x_train_main, x_train_aux, y_train, x_val, y_val, x_test, y_test = datasets.get_main_aux_data(x, y, data_split, validation_split, test_split)
 
 

@@ -5,8 +5,9 @@ from time import gmtime, strftime
 from tensorflow.keras.layers import Input, Dense, Activation, BatchNormalization
 from tensorflow.keras.models import Model
 from tensorflow.keras.losses import mean_squared_error, categorical_crossentropy
-from tensorflow.keras.datasets import mnist
+from tensorflow.keras.datasets import mnist, cifar100
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.callbacks import TensorBoard, Callback
 
 
@@ -61,6 +62,43 @@ class MNISTDataset():
     # 主データと補助データの準備
     def get_main_aux_data(self, x, y, data_split, validation_split, test_split):
         split_col = int(data_split * self.num_input)
+        id_test = int(test_split * x.shape[0])
+        id_val = int(validation_split * x.shape[0])
+        x_train = x[:-(id_val + id_test)]
+        y_train = y[:-(id_val + id_test)]
+        x_train_main, x_train_aux = np.split(x_train, [-split_col], axis=1)
+        x_val = x[-(id_val + id_test):-id_test]
+        x_val[:, -split_col:] = 0
+        y_val = y[-(id_val + id_test):-id_test]
+        x_test = x[-id_test:]
+        x_test[:, -split_col:] = 0
+        y_test = y[-id_test:]
+        return x_train_main, x_train_aux, y_train, x_val, y_val, x_test, y_test
+
+
+# CIFAR100データセットの準備
+class CIFAR100Dataset():
+    def __init__(self):
+        self.num_input = 3072
+        self.num_classes = 100
+
+    # CIFAR100データの取得
+    def get_data(self):
+        (x_train, y_train), (x_test, y_test) = cifar100.load_data()
+        # 出力データをone-hotベクトルによる表現にする
+        y_train = to_categorical(y_train, self.num_classes)
+        y_test = to_categorical(y_test, self.num_classes)
+        # 各データが0~1の値となるように調整
+        x_train = x_train.astype('float32') / 255
+        x_test = x_test.astype('float32') / 255
+        # 画像データの平滑化
+        x_train = x_train.reshape([len(x_train), self.num_input])
+        x_test = x_test.reshape([len(x_test), self.num_input])
+        return x_train, y_train, x_test, y_test
+
+    # 主データと補助データの準備
+    def get_main_aux_data(self, x, y, data_split, validation_split, test_split):
+        split_col = int((data_split * self.num_input) // 3 * 3)
         id_test = int(test_split * x.shape[0])
         id_val = int(validation_split * x.shape[0])
         x_train = x[:-(id_val + id_test)]
@@ -184,34 +222,4 @@ class LossAccHistory(Callback):
         self.accuracy.append(logs.get('accuracy'))
         self.losses_val.append(logs.get('val_loss'))
         self.accuracy_val.append(logs.get('val_accuracy'))
-
-
-# 画像のピクセルのうちshuffle_rate(0~1)の割合のものをシャッフルする関数
-def shuffle_pixel(data, shuffle_rate):
-    dtsize = data.shape[1]
-    dtnum_shuffled = int(dtsize * shuffle_rate)
-    id_shuffled = []
-    i = 0
-    while i < dtnum_shuffled:
-        rnd = random.randint(0, dtsize - 1)
-        if not rnd in id_shuffled:
-            id_shuffled.append(rnd)
-            i += 1
-    id_shuffled = np.array(id_shuffled)
-    id = id_shuffled
-    id_shuffled = np.random.permutation(id_shuffled)
-    idlist = np.arange(dtsize)
-    for j in range(dtnum_shuffled):
-        idlist[id[j]] = idlist[id_shuffled[j]]
-    data = data[:, idlist]
-    return data
-
-
-def shuffle_datasets(x, y):
-    dtsize = len(x)
-    id_shuffled = np.arange(dtsize)
-    id_shuffled = np.random.permutation(id_shuffled)
-    x_out = x[id_shuffled, :]
-    y_out = y[id_shuffled, :]
-    return x_out, y_out
 
