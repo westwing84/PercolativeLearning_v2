@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from Models import *
 
 dt_size = 3072           # 1データのサイズ(画像のピクセル数*チャネル数)
-data_split = 0.3        # 全ピクセルのうちの補助データの割合
+data_split = 0.5        # 全ピクセルのうちの補助データの割合
 subdt_size = int(dt_size * data_split)   # 補助データのサイズ
 maindt_size = dt_size - subdt_size  # 主データのサイズ
 layers_percnet = 2      # 浸透サブネットの層数
