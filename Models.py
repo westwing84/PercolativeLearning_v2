@@ -9,6 +9,7 @@ from tensorflow.keras.datasets import mnist, cifar100
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.callbacks import TensorBoard, Callback
+import matplotlib.pyplot as plt
 
 
 # 浸透サブネットおよび全体のネットワークの構成
@@ -144,9 +145,6 @@ class Trainer():
                                 validation_data=(x_val, y_val),
                                 callbacks=[history])
 
-        # 浸透特徴の保存
-        perc_feature = self.model_percnet.predict(x_train)
-
         # 2：浸透学習
         epoch = 0
         loss = 1
@@ -161,10 +159,9 @@ class Trainer():
 
         # 浸透学習
         self.model_wholenet.summary()
-        while non_perc_rate > nprate_min or loss > loss_min:
+        while epoch < epochs_perc:
             non_perc_rate = (1 - decay) ** epoch
-            x_train_aux_tmp = x_train_aux * non_perc_rate
-            x_train = np.concatenate([x_train_main, x_train_aux_tmp], axis=1)
+            x_train[:, -auxdt_size:] *= (1 - decay)
             print('Non-Percolation Rate =', non_perc_rate)
             self.model_wholenet.fit(x_train, y_train,
                                     initial_epoch=epochs_prior + epoch, epochs=epochs_prior + epoch + 1,
@@ -172,11 +169,7 @@ class Trainer():
                                     verbose=self.verbose,
                                     validation_data=(x_val, y_val),
                                     callbacks=[history])
-            loss = self.model_percnet.evaluate(x_train, perc_feature, verbose=0)
-            # x_train *= non_perc_vec
             epoch += 1
-            if epoch >= epochs_perc:
-                break
 
         # 3：微調整
         # 統合サブネットの重み固定を解除

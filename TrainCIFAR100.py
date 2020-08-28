@@ -2,24 +2,24 @@ import matplotlib.pyplot as plt
 from Models import *
 
 dt_size = 3072           # 1データのサイズ(画像のピクセル数*チャネル数)
-data_split = 0.5        # 全ピクセルのうちの補助データの割合
+data_split = 0.3        # 全ピクセルのうちの補助データの割合
 subdt_size = int(dt_size * data_split)   # 補助データのサイズ
 maindt_size = dt_size - subdt_size  # 主データのサイズ
 layers_percnet = 2      # 浸透サブネットの層数
 layers_intnet = 3       # 統合サブネットの層数
-percnet_size = 500      # 浸透サブネットの各層の素子数
-percfeature_size = 500  # 浸透特徴の個数
-intnet_size = 500       # 統合サブネットの各層の素子数
+percnet_size = 1000      # 浸透サブネットの各層の素子数
+percfeature_size = 1000  # 浸透特徴の個数
+intnet_size = 1000       # 統合サブネットの各層の素子数
 output_size = 100       # 出力データのサイズ
-epochs_prior = 100      # 事前学習のエポック数
-epochs_perc = 800       # 浸透学習のエポック数
-epochs_adj = 100        # 微調整のエポック数
+epochs_prior = 300      # 事前学習のエポック数
+epochs_perc = 1000       # 浸透学習のエポック数
+epochs_adj = 200        # 微調整のエポック数
 batch_size = 1024        # バッチサイズ
 validation_split = 1 / 6  # 評価に用いるデータの割合
 test_split = 1 / 6        # テストに用いるデータの割合
 verbose = 2             # 学習進捗の表示モード
 decay = 0.05            # 減衰率
-optimizer = Adam(lr=0.001)      # 最適化アルゴリズム
+optimizer = Adam(lr=0.0001)      # 最適化アルゴリズム
 # callbacks = [make_tensorboard(set_dir_name='log')]  # コールバック
 
 
@@ -49,13 +49,11 @@ plt.figure()
 for i in range(n):
     ax = plt.subplot(2, n, i+1)
     plt.imshow(x_train[i].reshape(32, 32, 3))
-    plt.gray()
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
     ax = plt.subplot(2, n, n + i + 1)
     plt.imshow(x_test[i].reshape(32, 32, 3))
-    plt.gray()
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 plt.show()
