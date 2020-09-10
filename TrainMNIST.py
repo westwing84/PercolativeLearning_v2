@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from Models import *
 
 dt_size = 784           # 1データのサイズ(画像のピクセル数)
-data_split = 0.7        # 全ピクセルのうちの補助データの割合
+data_split = 0.5        # 全ピクセルのうちの補助データの割合
 subdt_size = int(dt_size * data_split)   # 補助データのサイズ
 maindt_size = dt_size - subdt_size  # 主データのサイズ
 layers_percnet = 2      # 浸透サブネットの層数
@@ -88,6 +88,7 @@ print('Test - loss:', score_test[0], '- accuracy:', score_test[1])
 
 # 損失と精度をグラフにプロット
 plt.figure()
+plt.subplot(1, 2, 1)
 plt.plot(history_list.accuracy)
 plt.plot(history_list.accuracy_val)
 plt.title('Model accuracy')
@@ -96,13 +97,14 @@ plt.xlabel('Epoch')
 plt.ylim(0.0, 1.01)
 plt.legend(['Train', 'Validation'])
 
-plt.figure()
+plt.subplot(1, 2, 2)
 plt.plot(history_list.losses)
 plt.plot(history_list.losses_val)
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'])
+plt.tight_layout()
 plt.show()
 
 
