@@ -15,9 +15,9 @@ percfeature_size = 100  # 浸透特徴の個数
 intnet_size = 100       # 統合サブネットの各層の素子数
 output_size = 10        # 出力データのサイズ
 epochs_prior = 100      # 事前学習のエポック数
-epochs_perc = 800       # 浸透学習のエポック数
+epochs_perc = 300       # 浸透学習のエポック数
 epochs_adj = 100        # 微調整のエポック数
-batch_size = 512        # バッチサイズ
+batch_size = 128        # バッチサイズ
 validation_split = 1 / 7  # 評価に用いるデータの割合
 test_split = 1 / 7        # テストに用いるデータの割合
 verbose = 2             # 学習進捗の表示モード
@@ -44,7 +44,7 @@ x = np.concatenate([x_train, x_test], axis=0)
 y = np.concatenate([y_train, y_test], axis=0)
 x_train_main, x_train_aux, y_train, x_val, y_val, x_test, y_test = datasets.get_main_aux_data(x, y, data_split, validation_split, test_split)
 
-
+'''
 # 入力データの表示
 x_train = np.concatenate([x_train_main, 0*x_train_aux], axis=1)
 n = 10
@@ -62,7 +62,7 @@ for i in range(n):
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 plt.show()
-
+'''
 
 # 学習
 trainer = Trainer(percnet, network, optimizer, verbose)
