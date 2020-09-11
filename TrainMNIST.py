@@ -25,15 +25,15 @@ decay = 0.05            # 減衰率
 optimizer = Adam(lr=0.001)      # 最適化アルゴリズム
 # callbacks = [make_tensorboard(set_dir_name='log')]  # コールバック
 
+def f1_score(precision, recall):
+    return (2 * precision * recall) / (precision + recall)
+
 
 # ニューラルネットワークの構成
 percnet, network = network((maindt_size+subdt_size,),
                            percfeature_size, output_size,
                            layers_percnet, layers_intnet,
                            percnet_size, intnet_size)
-
-percnet.compile(optimizer=optimizer, loss=mean_squared_error)
-network.compile(optimizer=optimizer, loss=categorical_crossentropy, metrics=['accuracy'])
 
 
 # MNISTデータの読み込み
@@ -82,9 +82,12 @@ x_train = np.concatenate([x_train_main, x_train_aux], axis=1)
 score_train = network.evaluate(x_train, y_train, batch_size=batch_size)
 score_val = network.evaluate(x_val, y_val, batch_size=batch_size)
 score_test = network.evaluate(x_test, y_test, batch_size=batch_size)
-print('Train - loss:', score_train[0], '- accuracy:', score_train[1])
-print('Validation - loss:', score_val[0], '- accuracy:', score_val[1])
-print('Test - loss:', score_test[0], '- accuracy:', score_test[1])
+score_train.append(f1_score(score_train[2], score_train[3]))
+score_val.append(f1_score(score_val[2], score_val[3]))
+score_test.append(f1_score(score_test[2], score_test[3]))
+print('Train - loss:', score_train[0], '- accuracy:', score_train[1], '- precision: ', score_train[2], '- recall: ', score_train[3], '- f1-score: ', score_train[4])
+print('Validation - loss:', score_val[0], '- accuracy:', score_val[1], '- precision: ', score_val[2], '- recall: ', score_val[3], '- f1-score: ', score_val[4])
+print('Test - loss:', score_test[0], '- accuracy:', score_test[1], '- precision: ', score_test[2], '- recall: ', score_test[3], '- f1-score: ', score_test[4])
 
 # 損失と精度をグラフにプロット
 plt.figure()
@@ -106,6 +109,5 @@ plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'])
 plt.tight_layout()
 plt.show()
-
 
 

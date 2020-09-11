@@ -5,6 +5,7 @@ from time import gmtime, strftime
 from tensorflow.keras.layers import Input, Dense, Activation, BatchNormalization
 from tensorflow.keras.models import Model
 from tensorflow.keras.losses import mean_squared_error, categorical_crossentropy
+from tensorflow.keras.metrics import CategoricalAccuracy, Precision, Recall
 from tensorflow.keras.datasets import mnist, cifar100
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam, SGD
@@ -122,7 +123,8 @@ class Trainer():
         self.optimizer = optimizer
         self.verbose = verbose
         self.model_percnet.compile(loss=mean_squared_error, optimizer=self.optimizer)
-        self.model_wholenet.compile(loss=categorical_crossentropy, optimizer=self.optimizer, metrics=['accuracy'])
+        self.model_wholenet.compile(loss=categorical_crossentropy, optimizer=self.optimizer,
+                                    metrics=[CategoricalAccuracy(), Precision(), Recall()])
 
     # 学習
     def train(self, x_train_main, x_train_aux, y_train,
@@ -154,7 +156,8 @@ class Trainer():
         # 統合サブネットの重みを固定
         for i in range(3 * (num_layers_intnet - 1) + 2):
             self.model_wholenet.layers[-i-1].trainable = False
-        self.model_wholenet.compile(optimizer=self.optimizer, loss=categorical_crossentropy, metrics=['accuracy'])
+        self.model_wholenet.compile(optimizer=self.optimizer, loss=categorical_crossentropy,
+                                    metrics=[CategoricalAccuracy(), Precision(), Recall()])
 
         # 浸透学習
         self.model_wholenet.summary()
@@ -174,7 +177,8 @@ class Trainer():
         # 統合サブネットの重み固定を解除
         for i in range(3 * (num_layers_intnet - 1) + 2):
             self.model_wholenet.layers[-i-1].trainable = True
-        self.model_wholenet.compile(optimizer=self.optimizer, loss=categorical_crossentropy, metrics=['accuracy'])
+        self.model_wholenet.compile(optimizer=self.optimizer, loss=categorical_crossentropy,
+                                    metrics=[CategoricalAccuracy(), Precision(), Recall()])
         self.model_wholenet.summary()
         if True:  # 微調整を行う条件を入れる(現状は常に微調整を行う)
             non_perc_rate = 0
@@ -211,7 +215,7 @@ class LossAccHistory(Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         self.losses.append(logs.get('loss'))
-        self.accuracy.append(logs.get('accuracy'))
+        self.accuracy.append(logs.get('categorical_accuracy'))
         self.losses_val.append(logs.get('val_loss'))
-        self.accuracy_val.append(logs.get('val_accuracy'))
+        self.accuracy_val.append(logs.get('val_categorical_accuracy'))
 
