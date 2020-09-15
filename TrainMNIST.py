@@ -25,6 +25,7 @@ decay = 0.05            # 減衰率
 optimizer = Adam(lr=0.001)      # 最適化アルゴリズム
 # callbacks = [make_tensorboard(set_dir_name='log')]  # コールバック
 
+
 def f1_score(precision, recall):
     return (2 * precision * recall) / (precision + recall)
 
